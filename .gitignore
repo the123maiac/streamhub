@@ -10,6 +10,6 @@ yarn-debug.log*
 *.pem
 .vercel
 next-env.d.ts
-.tsbuildinfo
+*.tsbuildinfo
 /worker/tmp
 /coverage
