@@ -2,6 +2,7 @@ import "dotenv/config";
 import { claimJob, completeJob, failJob } from "./db";
 import { handleTranscode } from "./jobs/transcode";
 import { handleVodImport } from "./jobs/vod-import";
+import { handleEdit } from "./jobs/edit";
 
 const POLL_INTERVAL_MS = 5000;
 const WORKER_ID = `worker-${process.pid}-${Math.random().toString(36).slice(2, 8)}`;
@@ -18,6 +19,9 @@ async function tick(): Promise<void> {
         break;
       case "vod_import":
         await handleVodImport(job);
+        break;
+      case "edit":
+        await handleEdit(job);
         break;
       default:
         throw new Error(`unsupported job kind: ${job.kind}`);

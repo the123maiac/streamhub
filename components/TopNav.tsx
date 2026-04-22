@@ -15,9 +15,12 @@ export function TopNav({ profile }: Props) {
         <nav className="flex items-center gap-4 text-sm text-fg-muted">
           <Link href="/shorts" className="hover:text-fg">Shorts</Link>
           <Link href="/live" className="hover:text-fg">Live</Link>
+          <Link href="/music" className="hover:text-fg">Music</Link>
           <Link href="/search" className="hover:text-fg">Search</Link>
           {profile ? (
             <>
+              <Link href="/messages" className="hover:text-fg">Messages</Link>
+              <Link href="/go-live" className="hover:text-fg">Go live</Link>
               <Link href="/upload" className="rounded-md bg-accent px-3 py-1.5 font-medium text-accent-fg hover:opacity-90">
                 Upload
               </Link>

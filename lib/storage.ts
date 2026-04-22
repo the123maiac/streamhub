@@ -3,3 +3,7 @@ export function publicUrl(bucket: string, path: string): string {
   if (!base) throw new Error("NEXT_PUBLIC_SUPABASE_URL is not set");
   return `${base}/storage/v1/object/public/${bucket}/${path}`;
 }
+
+export function audioPublicUrl(path: string): string {
+  return publicUrl("audio", path);
+}
