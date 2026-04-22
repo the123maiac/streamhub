@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: streamhub-web
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - fromGroup: streamhub-shared
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+
+  - type: worker
+    name: streamhub-worker
+    runtime: node
+    plan: starter
+    buildCommand: npm ci
+    startCommand: npm run worker
+    autoDeploy: true
+    envVars:
+      - fromGroup: streamhub-shared
+
+envVarGroups:
+  - name: streamhub-shared
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_ABLY_KEY_ID
+        sync: false
+      - key: ABLY_API_KEY
+        sync: false
+      - key: LIVEPEER_API_KEY
+        sync: false
+      - key: LIVEPEER_WEBHOOK_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: WORKER_SHARED_SECRET
+        sync: false

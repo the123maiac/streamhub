@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 10 10 12;
+  --bg-muted: 22 22 26;
+  --bg-elevated: 32 32 38;
+  --fg: 245 245 247;
+  --fg-muted: 170 170 180;
+  --accent: 124 92 255;
+  --accent-fg: 255 255 255;
+  --border: 50 50 56;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.theme-light {
+  --bg: 250 250 252;
+  --bg-muted: 240 240 244;
+  --bg-elevated: 255 255 255;
+  --fg: 20 20 24;
+  --fg-muted: 90 90 100;
+  --accent: 99 69 230;
+  --accent-fg: 255 255 255;
+  --border: 220 220 226;
+}
+
+html,
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  border-color: rgb(var(--border));
+}
