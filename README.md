@@ -4,18 +4,27 @@ A social video, livestream, and chat platform.
 
 Stack: **Next.js 15 + Supabase + Ably + Livepeer Studio + FFmpeg worker**. Deploys to Render.
 
-## What's in this repo today (Phase 1)
+## What's in this repo today (Phases 1–2)
 
+**Phase 1**
 - Next.js 15 app (App Router, TypeScript, Tailwind)
-- Supabase schema + RLS policies for the entire spec (all tables for videos, streams, chat, moderation, music, jobs, notifications)
+- Supabase schema + RLS policies for the entire spec
 - Auth (email/password + Google OAuth)
 - Short + long-form upload with client-side probe
-- Worker that polls `processing_jobs` and runs FFmpeg to produce HLS + MP4 + thumbnail
+- Worker that polls `processing_jobs` and runs FFmpeg
 - Feed, Shorts index, watch page, short player page, comments, likes, profile pages, search
 - Ably token endpoint + rate-limit primitives
 - Render blueprint (`render.yaml`) with `web` + `worker` services
 
-Later phases (long-form ladder, livestream, DMs, editor, music library, analytics, moderation UI, notifications) are stubbed with placeholder pages but not implemented.
+**Phase 2** (current)
+- Adaptive HLS ladder for long-form videos (360p / 720p / 1080p + master playlist)
+- Ranked feed via the `ranked_feed` RPC — recency decay + like/view log + completion rate + follow bonus (per the design doc formula)
+- Following-only feed tab on `/?tab=following`
+- Follow / unfollow API + `FollowButton` + denormalized `follower_count` / `following_count` / `video_count` with trigger maintenance
+- Profile page polish: stats row, follow button, edit link
+- Edit-profile page with avatar upload and `update_own_profile` RPC
+
+Later phases (livestream, DMs, editor, music library, analytics, moderation UI, notifications) are stubbed with placeholder pages but not implemented.
 
 ## Local setup
 

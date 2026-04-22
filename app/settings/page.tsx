@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -22,8 +23,14 @@ export default async function SettingsPage() {
         <p><strong>Display name:</strong> {profile?.display_name}</p>
         <p><strong>Theme:</strong> {profile?.ui_theme}</p>
       </div>
+      <Link
+        href="/settings/profile"
+        className="inline-block rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-fg"
+      >
+        Edit profile
+      </Link>
       <p className="text-sm text-fg-muted">
-        Full settings UI (theme toggle, bio editor, avatar, notification prefs) lands in Phase 7.
+        Notification preferences land in Phase 7 with the notifications system.
       </p>
     </div>
   );
