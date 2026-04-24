@@ -2,7 +2,7 @@ services:
   - type: web
     name: streamhub-web
     runtime: node
-    plan: starter
+    plan: free
     buildCommand: npm ci && npm run build
     startCommand: npm run start
     autoDeploy: true
@@ -13,15 +13,6 @@ services:
         value: production
       - key: PORT
         value: 10000
-
-  - type: worker
-    name: streamhub-worker
-    runtime: image
-    plan: starter
-    dockerfilePath: ./Dockerfile.worker
-    autoDeploy: true
-    envVars:
-      - fromGroup: streamhub-shared
 
 envVarGroups:
   - name: streamhub-shared
