@@ -16,10 +16,9 @@ services:
 
   - type: worker
     name: streamhub-worker
-    runtime: node
+    runtime: image
     plan: starter
-    buildCommand: npm ci
-    startCommand: npm run worker
+    dockerfilePath: ./Dockerfile.worker
     autoDeploy: true
     envVars:
       - fromGroup: streamhub-shared
