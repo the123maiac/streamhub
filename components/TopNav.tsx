@@ -20,6 +20,7 @@ export function TopNav({ profile }: Props) {
           {profile ? (
             <>
               <Link href="/messages" className="hover:text-fg">Messages</Link>
+              <Link href="/studio" className="hover:text-fg">Studio</Link>
               <Link href="/go-live" className="hover:text-fg">Go live</Link>
               <Link href="/upload" className="rounded-md bg-accent px-3 py-1.5 font-medium text-accent-fg hover:opacity-90">
                 Upload
