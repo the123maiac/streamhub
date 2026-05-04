@@ -5,6 +5,11 @@ import { playbackUrl } from "@/lib/livepeer/client";
 import { LiveView } from "@/components/LiveView";
 import { LiveChat } from "@/components/LiveChat";
 
+// Re-fetch every 5s so viewers who load before the broadcaster goes live pick up
+// status='live' on their own. Once the page renders with status='live', the HLS
+// player keeps running independently of revalidation.
+export const revalidate = 5;
+
 export default async function LivePage({ params }: { params: Promise<{ playback_id: string }> }) {
   const { playback_id } = await params;
   const supabase = await createClient();

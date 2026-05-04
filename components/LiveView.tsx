@@ -1,11 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Hls from "hls.js";
 
 export function LiveView({ hlsUrl, status }: { hlsUrl: string; status: "idle" | "live" | "ended" }) {
   const ref = useRef<HTMLVideoElement>(null);
+  const router = useRouter();
   const [playbackError, setPlaybackError] = useState(false);
+
+  // Poll for the idle → live transition so viewers don't have to refresh.
+  useEffect(() => {
+    if (status !== "idle") return;
+    const id = setInterval(() => router.refresh(), 4000);
+    return () => clearInterval(id);
+  }, [status, router]);
 
   useEffect(() => {
     const el = ref.current;

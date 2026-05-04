@@ -46,3 +46,17 @@ export async function deleteStream(id: string): Promise<void> {
 export function playbackUrl(playbackId: string): string {
   return `https://livepeercdn.studio/hls/${playbackId}/index.m3u8`;
 }
+
+/**
+ * WHIP (WebRTC-HTTP Ingestion Protocol) endpoint for browser broadcasting.
+ * The broadcaster POSTs an SDP offer here with the stream key in the path;
+ * Livepeer responds with an SDP answer and a `Location` header pointing
+ * at the resource URL to DELETE when the broadcast ends.
+ *
+ * Override the base via NEXT_PUBLIC_LIVEPEER_WHIP_BASE if Livepeer rotates it.
+ */
+export function whipIngestUrl(streamKey: string): string {
+  const base =
+    process.env.NEXT_PUBLIC_LIVEPEER_WHIP_BASE ?? "https://webrtc.livepeer.studio/webrtc";
+  return `${base}/${streamKey}`;
+}
