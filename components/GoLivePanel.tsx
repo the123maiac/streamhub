@@ -92,14 +92,22 @@ function BrowserShareCard({ existing }: { existing: NonNullable<Existing> }) {
   const displayRef = useRef<MediaStream | null>(null);
   const micRef = useRef<MediaStream | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const cleanup = useCallback(() => {
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
     displayRef.current?.getTracks().forEach((t) => t.stop());
     micRef.current?.getTracks().forEach((t) => t.stop());
     audioCtxRef.current?.close().catch(() => {});
+    wakeLockRef.current?.release().catch(() => {});
     displayRef.current = null;
     micRef.current = null;
     audioCtxRef.current = null;
+    wakeLockRef.current = null;
     if (previewRef.current) previewRef.current.srcObject = null;
   }, []);
 
@@ -133,6 +141,25 @@ function BrowserShareCard({ existing }: { existing: NonNullable<Existing> }) {
       cleanup();
     };
   }, [cleanup]);
+
+  // The screen Wake Lock auto-releases when the tab is hidden — re-acquire it
+  // on visibility-change so background-tab throttling stays at bay throughout
+  // the broadcast.
+  useEffect(() => {
+    if (state !== "live") return;
+    function handler() {
+      if (document.visibilityState === "visible" && !wakeLockRef.current) {
+        navigator.wakeLock
+          ?.request("screen")
+          .then((lock) => {
+            wakeLockRef.current = lock;
+          })
+          .catch(() => {});
+      }
+    }
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, [state]);
 
   const start = useCallback(async () => {
     if (!existing.stream_key) {
@@ -194,10 +221,25 @@ function BrowserShareCard({ existing }: { existing: NonNullable<Existing> }) {
     try {
       const session = await publishWhip(whipIngestUrl(existing.stream_key), outbound);
       sessionRef.current = session;
+      // Only tear down on terminal states. `disconnected` is often a transient
+      // network blip (background tab, brief packet loss) that recovers on its
+      // own — give it a generous window to come back before giving up.
       session.pc.addEventListener("connectionstatechange", () => {
         const cs = session.pc.connectionState;
-        if (cs === "failed" || cs === "disconnected" || cs === "closed") {
+        if (cs === "failed" || cs === "closed") {
           stop(true);
+          return;
+        }
+        if (cs === "disconnected") {
+          if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+          reconnectTimerRef.current = setTimeout(() => {
+            if (sessionRef.current?.pc.connectionState === "disconnected") {
+              stop(true);
+            }
+          }, 30_000);
+        } else if (cs === "connected" && reconnectTimerRef.current) {
+          clearTimeout(reconnectTimerRef.current);
+          reconnectTimerRef.current = null;
         }
       });
     } catch (err) {
@@ -205,6 +247,18 @@ function BrowserShareCard({ existing }: { existing: NonNullable<Existing> }) {
       setState("error");
       setErrorMsg(err instanceof Error ? err.message : String(err));
       return;
+    }
+
+    // Hold a screen Wake Lock so the OS/browser doesn't throttle this tab while
+    // it's broadcasting — the main reason a stream "stops when you leave the
+    // window" was background-tab throttling severing the WebRTC connection.
+    if ("wakeLock" in navigator) {
+      try {
+        wakeLockRef.current = await navigator.wakeLock.request("screen");
+      } catch {
+        // Wake lock is best-effort; if denied, we just rely on the
+        // tolerant connection-state handling above.
+      }
     }
 
     await fetch(`/api/streams/${existing.id}/start`, { method: "POST" }).catch(() => {});
